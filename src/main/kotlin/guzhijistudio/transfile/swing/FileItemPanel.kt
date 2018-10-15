@@ -2,6 +2,8 @@ package guzhijistudio.transfile.swing
 
 import java.util.ResourceBundle
 import java.io.File
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.awt.SystemColor
 import java.awt.Font
 import java.awt.Dimension
@@ -38,6 +40,15 @@ class FileItemPanel(f: File) : JPanel() {
 		setMinimumSize(Dimension(310, 72))
 		setPreferredSize(Dimension(310, 72))
 		setLayout(BoxLayout(this, BoxLayout.LINE_AXIS))
+		addMouseListener(object: MouseAdapter() {
+			override fun mouseClicked(evt: MouseEvent) {}
+			override fun mouseEntered(evt: MouseEvent) {
+				setBackground(SystemColor.control)
+			}
+			override fun mouseExited(evt: MouseEvent) {
+				setBackground(SystemColor.window)
+			}
+		})
 
 		val jLabelIcon = JLabel()
 		jLabelIcon.setHorizontalAlignment(SwingConstants.CENTER)

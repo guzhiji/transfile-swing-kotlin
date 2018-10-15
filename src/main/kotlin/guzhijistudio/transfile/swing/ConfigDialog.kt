@@ -4,6 +4,7 @@ import java.util.ResourceBundle
 import java.awt.Dimension
 import java.awt.GridLayout
 import javax.swing.BoxLayout
+import javax.swing.WindowConstants
 import javax.swing.JPanel
 import javax.swing.JDialog
 import javax.swing.JTextField
@@ -22,27 +23,29 @@ class ConfigDialog : JDialog() {
 
 		transBundle = ResourceBundle.getBundle("guzhijistudio/transfile/swing/Bundle")
 
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
 		setTitle(transBundle.getString("ConfigDialog.title"))
 		setLocationByPlatform(true)
 		setModal(true)
+		setResizable(false)
 
 		val jLabelDeviceName = JLabel()
 		jTextFieldDeviceName = JTextField()
-		jTextFieldDeviceName.setPreferredSize(Dimension(200, 27))
+		jTextFieldDeviceName.setPreferredSize(Dimension(150, 27))
 		jLabelDeviceName.setText(transBundle.getString(
 			"ConfigDialog.jLabelDeviceName.text"))
 		jLabelDeviceName.setLabelFor(jTextFieldDeviceName)
 
 		val jLabelGroupAddr = JLabel()
 		jTextFieldGroupAddr = JTextField()
-		jTextFieldGroupAddr.setPreferredSize(Dimension(200, 27))
+		jTextFieldGroupAddr.setPreferredSize(Dimension(150, 27))
 		jLabelGroupAddr.setText(transBundle.getString(
 			"ConfigDialog.jLabelGroupAddr.text"))
 		jLabelGroupAddr.setLabelFor(jTextFieldGroupAddr)
 
 		val jLabelDir = JLabel()
 		jTextFieldDir = JTextField()
-		jTextFieldDir.setPreferredSize(Dimension(200, 27))
+		jTextFieldDir.setPreferredSize(Dimension(150, 27))
 		jLabelDir.setText(transBundle.getString(
 			"ConfigDialog.jLabelDir.text"))
 		jLabelDir.setLabelFor(jTextFieldDir)
@@ -77,7 +80,6 @@ class ConfigDialog : JDialog() {
 			BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS))
 		getContentPane().add(jPanel1)
 		getContentPane().add(jPanel2)
-		setResizable(false)
 
 		pack()
 	}

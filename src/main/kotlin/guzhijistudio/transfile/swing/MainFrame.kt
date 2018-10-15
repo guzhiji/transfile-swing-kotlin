@@ -8,6 +8,7 @@ import java.awt.SystemColor
 import java.awt.Dimension
 import java.awt.BorderLayout
 import javax.swing.BoxLayout
+// import javax.swing.UIManager
 import javax.swing.WindowConstants
 import javax.swing.JFrame
 import javax.swing.JTabbedPane
@@ -29,6 +30,14 @@ class MainFrame : JFrame() {
 	private val jPanelFilesReceived: JPanel
 
 	init {
+
+		/*
+		for (info in UIManager.getInstalledLookAndFeels())
+			if ("Nimbus" == info.name) {
+				UIManager.setLookAndFeel(info.className)
+				break
+			}
+		*/
 
 		transBundle = ResourceBundle.getBundle("guzhijistudio/transfile/swing/Bundle")
 
@@ -159,9 +168,10 @@ class MainFrame : JFrame() {
 					println(file.name)
 					val panel = FileItemPanel(file)
 					jPanelSendingFiles.add(panel)
-					jPanelSendingFiles.repaint()
 				}
 			}
+			// revalidate()
+			jPanelSendingFiles.revalidate()
 		}
 	}
 
