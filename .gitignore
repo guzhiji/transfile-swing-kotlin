@@ -2,5 +2,7 @@
 *.swp
 .*.swp
 *~
+*.iml
+.idea
 target
 
