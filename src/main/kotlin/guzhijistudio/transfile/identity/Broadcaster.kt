@@ -32,7 +32,7 @@ class Broadcaster(
 					return false
 			}
 			return true
-		} catch (ex: NumberFormatException) {
+		} catch (_: NumberFormatException) {
 			return false
 		}
 	}
@@ -72,7 +72,7 @@ class Broadcaster(
 						SocketUtils.writeString(data, deviceName, pos)
 						socket.send(DatagramPacket(data, data.size))
 					}
-					catch (e: IOException) {
+					catch (_: IOException) {
 					}
 				}
 				Thread.sleep(1000)
@@ -85,13 +85,13 @@ class Broadcaster(
 					SocketUtils.writeString(data, socket.localAddress.hostAddress, pos)
 					SocketUtils.writeString(data, deviceName, pos)
 					socket.send(DatagramPacket(data, data.size))
-				} catch (e: IOException) {
+				} catch (_: IOException) {
 				} finally {
 					socket.close()
 				}
 			}
-		} catch (ex: SocketException) {
-		} catch (ex: InterruptedException) {
+		} catch (_: SocketException) {
+		} catch (_: InterruptedException) {
 		}
 
 	}

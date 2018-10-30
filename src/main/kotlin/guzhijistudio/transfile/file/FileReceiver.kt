@@ -52,7 +52,7 @@ class FileReceiver(
 		}
 	}
 
-	fun process(s: Socket) {
+	private fun process(s: Socket) {
 		val buf = ByteArray(10240)
 		s.getInputStream().use {
 			loop@ while (true) {
@@ -84,7 +84,7 @@ class FileReceiver(
                 val socket = socket.accept()
 				Thread(Runnable { process(socket) }).start()
 			}
-		} catch (e: IOException) {
+		} catch (_: IOException) {
 		}
 	}
 

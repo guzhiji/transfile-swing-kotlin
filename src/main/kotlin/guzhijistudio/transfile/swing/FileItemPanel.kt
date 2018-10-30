@@ -18,7 +18,7 @@ import javax.swing.JProgressBar
 
 class FileItemPanel(f: File) : JPanel() {
 
-	private val transBundle: ResourceBundle
+	private val transBundle: ResourceBundle = ResourceBundle.getBundle("guzhijistudio/transfile/swing/Bundle")
 	private val jLabelFileName: JLabel
 	private val jLabelFileSize: JLabel
 	private val jProgress: JProgressBar
@@ -27,50 +27,48 @@ class FileItemPanel(f: File) : JPanel() {
 		get() = _file
 		set(value) {
 			_file = value
-			jLabelFileName.setText(value.name)
-			jLabelFileSize.setText(formatSize(value.length()))
+			jLabelFileName.text = value.name
+			jLabelFileSize.text = formatSize(value.length())
 		}
 
 	init {
 
-		transBundle = ResourceBundle.getBundle("guzhijistudio/transfile/swing/Bundle")
-
-		setBackground(SystemColor.window)
-		setMaximumSize(Dimension(310, 72))
-		setMinimumSize(Dimension(310, 72))
-		setPreferredSize(Dimension(310, 72))
-		setLayout(BoxLayout(this, BoxLayout.LINE_AXIS))
+		background = SystemColor.window
+		maximumSize = Dimension(310, 72)
+		minimumSize = Dimension(310, 72)
+		preferredSize = Dimension(310, 72)
+		layout = BoxLayout(this, BoxLayout.LINE_AXIS)
 		addMouseListener(object: MouseAdapter() {
 			override fun mouseClicked(evt: MouseEvent) {}
 			override fun mouseEntered(evt: MouseEvent) {
-				setBackground(SystemColor.control)
+				background = SystemColor.control
 			}
 			override fun mouseExited(evt: MouseEvent) {
-				setBackground(SystemColor.window)
+				background = SystemColor.window
 			}
 		})
 
 		val jLabelIcon = JLabel()
-		jLabelIcon.setHorizontalAlignment(SwingConstants.CENTER)
-		jLabelIcon.setIcon(ImageIcon(javaClass.getResource(
-			"/guzhijistudio/transfile/swing/format_unknown.png")))
+		jLabelIcon.horizontalAlignment = SwingConstants.CENTER
+		jLabelIcon.icon = ImageIcon(javaClass.getResource(
+				"/guzhijistudio/transfile/swing/format_unknown.png"))
 		add(jLabelIcon)
 
 		val jPanelRight = JPanel()
-		jPanelRight.setPreferredSize(Dimension(260, 87))
-		jPanelRight.setOpaque(false)
-		jPanelRight.setLayout(GridLayout(3, 1))
+		jPanelRight.preferredSize = Dimension(260, 87)
+		jPanelRight.isOpaque = false
+		jPanelRight.layout = GridLayout(3, 1)
 
 		jLabelFileName = JLabel()
 		jLabelFileSize = JLabel()
 		jProgress = JProgressBar()
 
-		jLabelFileName.setFont(Font(transBundle.getString(
-			"FileItemPanel.jLabelFileName.font"), 0, 24))
-		jLabelFileName.setText(transBundle.getString(
-			"FileItemPanel.jLabelFileName.text"))
-		jLabelFileSize.setText(transBundle.getString(
-			"FileItemPanel.jLabelFileSize.text"))
+		jLabelFileName.font = Font(transBundle.getString(
+				"FileItemPanel.jLabelFileName.font"), 0, 24)
+		jLabelFileName.text = transBundle.getString(
+				"FileItemPanel.jLabelFileName.text")
+		jLabelFileSize.text = transBundle.getString(
+				"FileItemPanel.jLabelFileSize.text")
 
 		jPanelRight.add(jLabelFileName)
 		jPanelRight.add(jLabelFileSize)

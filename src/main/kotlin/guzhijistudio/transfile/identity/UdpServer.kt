@@ -31,7 +31,7 @@ class UdpServer(
 					removeExpired()
 					Thread.sleep(1000)
 				}
-			} catch (e: InterruptedException) {
+			} catch (_: InterruptedException) {
 			}
 		}
 	}
@@ -88,7 +88,7 @@ class UdpServer(
 				}
 
 			}
-			catch (e: Exception) {
+			catch (_: Exception) {
 			}
 		}
 	}
