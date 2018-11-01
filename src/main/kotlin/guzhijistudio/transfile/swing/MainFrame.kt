@@ -15,59 +15,19 @@ import java.awt.SystemColor
 import java.awt.Dimension
 import java.awt.BorderLayout
 import java.net.InetSocketAddress
+import java.util.concurrent.Executors
 import javax.swing.*
 import kotlin.system.exitProcess
-
-// import javax.swing.UIManager
-
 
 class MainFrame : JFrame() {
 
 	private val transBundle: ResourceBundle = ResourceBundle.getBundle("guzhijistudio/transfile/swing/Bundle")
+	private val fileSenders = Executors.newFixedThreadPool(2)
 	private val jPanelSendingFiles: JPanel
 	private val jPanelFilesReceived: JPanel
 
 	private var broadcaster: Broadcaster? = null
 	private var fileReceiver: FileReceiver? = null
-
-	private val frListener = object : FileReceiverListener {
-		override fun onFileReceived(file: File) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-
-		override fun onFile(file: File) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-
-		override fun onMsg(msg: String) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-
-		override fun onError(msg: String) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-
-		override fun onProgress(file: File, received: Long, total: Long, speed: Long, secs: Long) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-	}
-	private val fsListener = object : FileSenderListener {
-		override fun onStart(file: File) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-
-		override fun onFileSent(file: File) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-
-		override fun onError(file: File?, msg: String) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-
-		override fun onProgress(file: File, sent: Long, total: Long, speed: Long, secs: Long) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-		}
-	}
 
 	init {
 
@@ -122,7 +82,65 @@ class MainFrame : JFrame() {
 		jScrollPane2.setViewportView(jPanelFilesReceived)
 
 		pack()
+	}
 
+	private val frListener = object : FileReceiverListener {
+		override fun onFileReceived(file: File) {
+			findFileItemPanel(jPanelFilesReceived, file)?.done = true
+		}
+
+		override fun onFile(file: File) {
+			val fileItem = findFileItemPanel(jPanelFilesReceived, file)
+			if (fileItem == null) {
+				val panel = FileItemPanel(file)
+				panel.setRemoveAction {
+					if (panel.progressing) {
+						JOptionPane.showMessageDialog(this@MainFrame, transBundle.getString(
+								"MainFrame.Message.FileReceiving"))
+					} else {
+						jPanelFilesReceived.remove(panel)
+						jPanelFilesReceived.revalidate()
+						jPanelFilesReceived.repaint()
+					}
+				}
+				jPanelFilesReceived.add(panel)
+				jPanelFilesReceived.revalidate()
+			}
+		}
+
+		override fun onMsg(msg: String) {
+		}
+
+		override fun onError(msg: String) {
+		}
+
+		override fun onProgress(file: File, received: Long, total: Long, speed: Long, secs: Long) {
+			findFileItemPanel(jPanelFilesReceived, file)?.setProgress(
+					received, total, speed, secs)
+		}
+	}
+
+	private val fsListener = object : FileSenderListener {
+		override fun onStart(file: File) {
+			findFileItemPanel(jPanelSendingFiles, file)?.setError(null)
+		}
+
+		override fun onFileSent(file: File) {
+			findFileItemPanel(jPanelSendingFiles, file)?.done = true
+		}
+
+		override fun onError(file: File?, msg: String) {
+			if (file != null)
+				findFileItemPanel(jPanelSendingFiles, file)?.setError(msg)
+		}
+
+		override fun onProgress(file: File, sent: Long, total: Long, speed: Long, secs: Long) {
+			findFileItemPanel(jPanelSendingFiles, file)?.setProgress(
+					sent, total, speed, secs)
+		}
+	}
+
+	init {
 		if (Config.LOADED) {
 			startBroadcast()
 			startFileReceiver()
@@ -244,7 +262,41 @@ class MainFrame : JFrame() {
 				if (findFileItemPanel(jPanelSendingFiles, file) == null) {
 					println(file.name)
 					val panel = FileItemPanel(file)
+					panel.setResendAction {
+						if (panel.progressing) {
+							JOptionPane.showMessageDialog(this@MainFrame, transBundle.getString(
+									"MainFrame.Message.FileSending"))
+						} else {
+							var ip = panel.destIp
+							if (ip == null) {
+								val dialog = DeviceListDialog()
+								dialog.isVisible = true
+								if (dialog.isIpSelected) {
+									ip = dialog.selectedIp
+									panel.destIp = ip
+								}
+							}
+							if (ip != null) {
+								fileSenders.submit(FileSender(ip, Constants.FILE_SERVER_PORT,
+										panel.file.absolutePath, fsListener))
+							}
+						}
+					}
+					panel.setRemoveAction {
+						if (panel.progressing) {
+							JOptionPane.showMessageDialog(this@MainFrame, transBundle.getString(
+									"MainFrame.Message.FileSending"))
+						} else {
+							jPanelSendingFiles.remove(panel)
+							jPanelSendingFiles.revalidate()
+							jPanelSendingFiles.repaint()
+						}
+					}
 					jPanelSendingFiles.add(panel)
+				} else {
+					JOptionPane.showMessageDialog(this, String.format(
+							transBundle.getString("MainFrame.Message.FileInList"),
+							file.name))
 				}
 			}
 			// revalidate()
@@ -255,6 +307,18 @@ class MainFrame : JFrame() {
 	private fun showDeviceChooser() {
 		val dialog = DeviceListDialog()
 		dialog.isVisible = true
+		if (dialog.isIpSelected) {
+			for (comp in jPanelSendingFiles.components) {
+				if (comp is FileItemPanel) {
+					if (!comp.progressing && !comp.done) {
+						comp.destIp = dialog.selectedIp
+						fileSenders.submit(FileSender(
+								dialog.selectedIp!!, Constants.FILE_SERVER_PORT,
+								comp.file.absolutePath, fsListener))
+					}
+				}
+			}
+		}
 	}
 
 	private fun findFileItemPanel(list: JPanel, file: File): FileItemPanel? {

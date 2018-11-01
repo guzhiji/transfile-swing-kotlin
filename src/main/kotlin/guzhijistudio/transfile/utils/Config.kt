@@ -5,7 +5,7 @@ import java.io.File
 import java.io.IOException
 
 object Config {
-    val CONFIG_FILE = "./transfile.ini"
+    private const val CONFIG_FILE = "./transfile.ini"
     var LOADED = false
     var DEVICE_NAME = ""
     var GROUP_ADDR = ""
@@ -35,7 +35,7 @@ object Config {
             if (!configFile.exists())
                 configFile.createNewFile()
             val config = Ini(configFile)
-            var section = config["transfile"] ?: config.add("transfile")
+            val section = config["transfile"] ?: config.add("transfile")
             section["device_name"] = DEVICE_NAME
             section["group_addr"] = GROUP_ADDR
             section["dir"] = DIR
